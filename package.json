@@ -1,0 +1,19 @@
+{
+  "name": "informaticalogs",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "aws-sdk": "^2.23.0",
+    "moment": "^2.17.1",
+    "mongodb": "^2.2.24",
+    "mongoose": "^4.8.6",
+    "util": "^0.10.3"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "jarid",
+  "license": "ISC"
+}
