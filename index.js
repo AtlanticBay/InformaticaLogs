@@ -7,8 +7,10 @@ var AWS = require('aws-sdk');
 var s3 = new AWS.S3({ apiVersion: '2006-03-01' });
 
 var testLogSchema = new Schema({ 
-    fullPath: { type: String, unique: true },
+    fileName: { type: String, unique: true },
     taskName: { type: String },
+    fileUrl: {type: String},
+    objectId: { type: String},
     dateCreated: { type: Date },
     errorCount: { type: Number }
 }, { versionKey: false });
@@ -40,8 +42,10 @@ exports.handler = (event, context) => {
         Job.findOne({ "objectId": filename.replace(pattern, '').substring(6, 26) })
         .then(job => {
             var newLog = new Log({
-                fullPath: url + filename,
+                fileName: filename.replace(pattern, ''),
                 taskName: job.taskName,
+                fileUrl: url + filename,
+                objectId: filename.replace(pattern, '').substring(6, 26),
                 dateCreated: moment(data.Metadata.lastwritetime, 'DD-MM-YYYY-HH:mm:ss').add(5, 'hours'),
                 errorCount: (data.Body.toString('utf8').split('\n').length - 1)
             });
