@@ -8,7 +8,6 @@ var s3 = new AWS.S3({ apiVersion: '2006-03-01' });
 
 var testLogSchema = new Schema({ 
     fullPath: { type: String, unique: true },
-    fileName: { type: String },
     taskName: { type: String },
     dateCreated: { type: Date },
     errorCount: { type: Number }
@@ -25,8 +24,12 @@ exports.handler = (event, context) => {
 
   var Log = db.model('testlog', testLogSchema);
   var Job = db.model('job', jobSchema);
-  
-  var filename = `https://s3.amazonaws.com/informatica-logs/sf-errorlogs/${moment().format('DD[-]MM[-]YYYY')}/${event.Records[0].s3.object.key.toString()}`;
+
+  var pattern = /^(sf-errorlogs\/)[0-9]{2}[-][0-9]{2}[-][0-9]{4}(\/)/;
+  var filename = event.Records[0].s3.object.key.toString();
+  var url = 'https://s3.amazonaws.com/informatica-logs/';
+
+  /* TODO: Convert everything to async/await */
 
   s3.getObject({ Bucket: event.Records[0].s3.bucket.name.toString(), Key: event.Records[0].s3.object.key.toString() }, (err, data) => {
       
@@ -34,11 +37,10 @@ exports.handler = (event, context) => {
         console.log(err, err.stack);
         db.connection.close();
     } else {
-        Job.findOne({ "objectId": event.Records[0].s3.object.key.toString().substring(6, 26) })
+        Job.findOne({ "objectId": filename.replace(pattern, '').substring(6, 26) })
         .then(job => {
             var newLog = new Log({
-                fullPath: filename,
-                fileName: event.Records[0].s3.object.key.toString(),
+                fullPath: url + filename,
                 taskName: job.taskName,
                 dateCreated: moment(data.Metadata.lastwritetime, 'DD-MM-YYYY-HH:mm:ss').add(5, 'hours'),
                 errorCount: (data.Body.toString('utf8').split('\n').length - 1)
