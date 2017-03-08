@@ -21,7 +21,7 @@ var jobSchema = new Schema({
 }, { versionKey: false });
 
 exports.handler = (event, context) => {
-
+  console.log(event.Records[0].s3.object.key.toString())
   var db = mongoose.connect('mongodb://ec2-52-91-110-103.compute-1.amazonaws.com:27017/logFiles');
 
   var Log = db.model('testlog', testLogSchema);
