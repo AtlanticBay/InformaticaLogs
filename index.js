@@ -47,7 +47,7 @@ exports.handler = (event, context) => {
                 fileUrl: url + filename,
                 objectId: filename.replace(pattern, '').substring(6, 26),
                 dateCreated: moment(data.Metadata.lastwritetime, 'DD-MM-YYYY-HH:mm:ss').add(5, 'hours'),
-                errorCount: (data.Body.toString('utf8').split('\n').length - 1)
+                errorCount: (data.Body.toString('utf8').split('\n').length - 1) >= 0 ? (data.Body.toString('utf8').split('\n').length - 1) : 0
             });
             newLog.save();
             db.connection.close();
